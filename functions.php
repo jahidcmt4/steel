@@ -252,7 +252,17 @@ function steel_search_result_ajax_sidebar(){
             $tax_query_placeholders = array_merge($tax_query_placeholders, $category);
         }
     
-        // Using 3959 for miles
+        // Determine the ORDER BY clause based on the order_by parameter
+        if ($order_by == 'low') {
+            $order_clause = "CAST(pm_price.meta_value AS DECIMAL(20, 10)) ASC";
+        } elseif ($order_by == 'high') {
+            $order_clause = "CAST(pm_price.meta_value AS DECIMAL(20, 10)) DESC";
+        } else {
+            // Default to ordering by post date if neither 'low' nor 'high'
+            $order_clause = "p.post_date $order_by";
+        }
+    
+        // Query to fetch products based on geolocation, price, and category filters
         $query = $wpdb->prepare(
             "
             SELECT DISTINCT p.ID, p.post_title, pm_lat.meta_value as lat, pm_lng.meta_value as lng,
@@ -272,9 +282,9 @@ function steel_search_result_ajax_sidebar(){
             AND p.post_type = 'product'
             AND pm_lat.meta_key = 'dokan_geo_latitude'
             AND pm_lng.meta_key = 'dokan_geo_longitude'
-            AND CAST(pm_price.meta_value AS DECIMAL(10, 2)) BETWEEN %f AND %f
+            AND CAST(pm_price.meta_value AS DECIMAL(20, 10)) BETWEEN %f AND %f
             HAVING distance < %d
-            ORDER BY p.post_date $order_by
+            ORDER BY $order_clause
             ",
             array_merge(
                 [$latitude, $longitude, $latitude],
@@ -285,6 +295,8 @@ function steel_search_result_ajax_sidebar(){
     
         // Execute the query
         $products = $wpdb->get_results($query);
+    
+        // Return the filtered products
         return $products;
     }
     

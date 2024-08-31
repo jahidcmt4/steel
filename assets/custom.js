@@ -159,6 +159,7 @@ jQuery(".geo_address_field").each(function (event) {
           console.log(response);
           if (response.success) {
             $('.products.clearfix.columns-4').html(response.data.html); // Insert the product HTML into a container
+            $('.woo_pagination').remove();
         }
         },
         error: function (data) {
