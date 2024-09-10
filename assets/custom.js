@@ -156,7 +156,6 @@ jQuery(".geo_address_field").each(function (event) {
 
         },
         success: function (response) {
-          console.log(response);
           if (response.success) {
             $('.products.clearfix.columns-4').html(response.data.html); // Insert the product HTML into a container
             $('.woo_pagination').remove();
@@ -193,6 +192,20 @@ jQuery(".geo_address_field").each(function (event) {
     setTimeout(function() {
       makeFilter();
     }, 1000); // 1 second delay
+  });
+
+  // Steel Filter Reset
+  $(document).on('click', '.filterresetbutton', function (e) {
+    e.preventDefault();
+    $('[name*=product_cat]').prop('checked', false);
+    $('#geo_address_field').val('');
+    $('#geo_lat_data').val('');
+    $('#geo_long_data').val('');
+    $('#geolocation_radius').val('');
+    $('#steel_orderby').val('');
+
+    makeFilter();
+    $(".steel-reset-button").hide();
   });
 
   $(document).on('change', '#steel_orderby', function (e) { 
